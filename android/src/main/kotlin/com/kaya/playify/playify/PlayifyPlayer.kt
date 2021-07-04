@@ -73,7 +73,7 @@ class PlayifyPlayer {
 
                 val albumArt = albumArtCursor?.getString(0)
 
-                Log.d("playify", albumArt)
+                //Log.d("playify", albumArt)
 
                 val bitmap = BitmapFactory.decodeFile(albumArt)
 
