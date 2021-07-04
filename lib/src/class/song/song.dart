@@ -1,18 +1,21 @@
-import 'package:flutter/material.dart';
-
 class Song {
-  Song(
-      {required this.iOSSongID,
-      required this.title,
-      required this.artistName,
-      required this.albumTitle,
-      required this.trackNumber,
-      required this.playCount,
-      required this.discNumber,
-      required this.genre,
-      required this.releaseDate,
-      required this.duration,
-      required this.isExplicit});
+  Song({
+    required this.iOSSongID,
+    required this.albumID,
+    required this.title,
+    required this.artistName,
+    required this.albumTitle,
+    required this.trackNumber,
+    required this.playCount,
+    required this.discNumber,
+    required this.genre,
+    required this.releaseDate,
+    required this.duration,
+    required this.isExplicit,
+  });
+
+  ///The Persistent Album ID of the song.
+  String albumID;
 
   ///The title of the album.
   String albumTitle;
@@ -48,6 +51,7 @@ class Song {
   bool isExplicit;
 
   static Song fromJson(Map<String, dynamic> map) => Song(
+      albumID: (map['albumID'] ?? '').toString(),
       albumTitle: map['albumTitle'] ?? '',
       duration: map['playbackDuration'] ?? '',
       title: map['songTitle'] ?? '',

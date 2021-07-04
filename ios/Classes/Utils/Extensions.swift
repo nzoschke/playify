@@ -18,7 +18,8 @@ extension MPMediaItem {
             "discNumber": discNumber,
             "isExplicitItem": isExplicitItem,
             "songID": persistentID,
-            "playbackDuration": playbackDuration
+            "playbackDuration": playbackDuration,
+            "albumID": albumPersistentID,
         ]
     }
 }

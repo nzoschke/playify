@@ -193,6 +193,7 @@ public class SwiftPlayifyPlugin: NSObject, FlutterPlugin {
                 for metadata in allsongs {
                     var songDict = metadata.toDict()
                     
+                    // FIXME: use albumID not title
                     var albumExists = false
                     var albumExistsArtistName = ""
 
@@ -206,6 +207,47 @@ public class SwiftPlayifyPlugin: NSObject, FlutterPlugin {
                     //If the album with a name does not exist or the name is the same but the artist's name
                     //is different, get the album cover.
                     if(!albumExists || (albumExists && albumExistsArtistName != metadata.artist)){
+                        if (size.intValue > 0) {
+                            let image = metadata.artwork?.image(at: CGSize(width: size.intValue, height: size.intValue))
+
+                            //Resize image since there is an issue with getting the album cover with the desired size
+                            let resizedImage = (image != nil) ? resizeImage(image: image!, targetSize: CGSize(width: size.intValue, height: size.intValue)) : nil
+
+                            //Convert image to Uint8 Array to send to Flutter (Taken from https://stackoverflow.com/a/29734526)
+                            let imgdata = resizedImage?.jpegData(compressionQuality: 0.85)
+
+                            songDict["image"] = imgdata ?? []
+                        }
+
+                        mysongs.append(songDict)
+                        albums.append(["albumTitle": metadata.albumTitle ?? "", "artistName": metadata.artist ?? ""])
+                    }
+                    else {
+                        mysongs.append(songDict)
+                    }
+                }
+                result(mysongs)
+            }
+            else if(call.method == "getSongs") {
+                guard let args = call.arguments as? [String: Any] else {
+                    result(FlutterError(code: "invalidArgs", message: "Invalid Arguments", details: "The arguments were not provided!"))
+                    return
+                }
+                guard let songIDs = args["songIDs"] as? [String] else {
+                    result(FlutterError(code: "invalidArgs", message: "Invalid Arguments", details: "The parameter songIDs was not provided!"))
+                    return
+                }
+                guard let size = args["size"] as? NSNumber else {
+                    result(FlutterError(code: "invalidArgs", message: "Invalid Arguments", details: "The parameter size was not provided!"))
+                    return
+                }
+
+                let songs = player.getMediaItemsWithIDs(songIDs: songIDs)
+                var mysongs: [[String: Any]] = []
+
+                for metadata in songs {
+                    var songDict = metadata.toDict()
+                    if (size.intValue > 0) {
                         let image = metadata.artwork?.image(at: CGSize(width: size.intValue, height: size.intValue))
                         
                         //Resize image since there is an issue with getting the album cover with the desired size
@@ -215,12 +257,9 @@ public class SwiftPlayifyPlugin: NSObject, FlutterPlugin {
                         let imgdata = resizedImage?.jpegData(compressionQuality: 0.85)
                         
                         songDict["image"] = imgdata ?? []
-                        mysongs.append(songDict)
-                        albums.append(["albumTitle": metadata.albumTitle ?? "", "artistName": metadata.artist ?? ""])
                     }
-                    else {
-                        mysongs.append(songDict)
-                    }
+
+                    mysongs.append(songDict)
                 }
                 result(mysongs)
             }

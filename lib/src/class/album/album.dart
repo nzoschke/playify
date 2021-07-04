@@ -1,15 +1,19 @@
-import 'package:flutter/material.dart';
 import 'package:playify/src/class/song/song.dart';
 import 'dart:typed_data';
 
 class Album {
-  Album(
-      {required this.title,
-      required this.songs,
-      required this.albumTrackCount,
-      required this.artistName,
-      required this.coverArt,
-      required this.discCount});
+  Album({
+    required this.title,
+    required this.songs,
+    required this.albumTrackCount,
+    required this.artistName,
+    required this.coverArt,
+    required this.discCount,
+    required this.iOSAlbumID,
+  });
+
+  ///The Persistent Song ID of the song. Used to play or enqueue a song.
+  String iOSAlbumID;
 
   ///The title of the album.
   String title;

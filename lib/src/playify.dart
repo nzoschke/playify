@@ -189,11 +189,40 @@ class Playify {
   ///enough memory. In this case, the [coverArtSize] should be reduced.
   ///
   ///[sort] can be set to true in order to sort the artists alphabetically.
-  Future<List<Artist>> getAllSongs(
-      {bool sort = false, int coverArtSize = 500}) async {
+  Future<List<Artist>> getAllSongs({
+    bool sort = false,
+    int coverArtSize = 500,
+  }) async {
+    final result = await playerChannel.invokeMethod(
+      'getAllSongs',
+      <String, dynamic>{
+        'size': coverArtSize,
+      },
+    );
+
+    final artists = await toArtists(result);
+    if (sort) artists.sort((a, b) => a.name.compareTo(b.name));
+    return artists;
+  }
+
+  Future<List<Artist>> getSongs({
+    required List<String> songIDs,
+    int coverArtSize = 500,
+  }) async {
+    final result = await playerChannel.invokeMethod(
+      'getSongs',
+      <String, dynamic>{
+        'songIDs': songIDs,
+        'size': coverArtSize,
+      },
+    );
+
+    return toArtists(result);
+  }
+
+  Future<List<Artist>> toArtists(dynamic result) async {
     final artists = <Artist>[];
-    final result = await playerChannel
-        .invokeMethod('getAllSongs', <String, dynamic>{'size': coverArtSize});
+
     for (var a = 0; a < result.length; a++) {
       final resobj = Map<String, dynamic>.from(result[a]);
       final artist = Artist(albums: [], name: resobj['artist']);
@@ -213,12 +242,14 @@ class Playify {
         }
       }
       final album = Album(
-          songs: [],
-          title: resobj['albumTitle'],
-          albumTrackCount: resobj['albumTrackCount'] ?? 0,
-          coverArt: image,
-          discCount: resobj['discCount'] ?? 0,
-          artistName: artist.name);
+        iOSAlbumID: (resobj['albumID'] ?? '').toString(),
+        songs: [],
+        title: resobj['albumTitle'],
+        albumTrackCount: resobj['albumTrackCount'] ?? 0,
+        coverArt: image,
+        discCount: resobj['discCount'] ?? 0,
+        artistName: artist.name,
+      );
       final song = Song.fromJson(resobj);
       album.songs.add(song);
       artist.albums.add(album);
@@ -255,7 +286,6 @@ class Playify {
         artists.add(artist);
       }
     }
-    if (sort) artists.sort((a, b) => a.name.compareTo(b.name));
     return artists;
   }
 
@@ -271,6 +301,7 @@ class Playify {
     final resobj = Map<String, dynamic>.from(result);
     final artist = Artist(albums: [], name: resobj['artist']);
     final album = Album(
+        iOSAlbumID: (resobj['albumID'] ?? '').toString(),
         songs: [],
         title: resobj['albumTitle'],
         albumTrackCount: resobj['albumTrackCount'] ?? 0,

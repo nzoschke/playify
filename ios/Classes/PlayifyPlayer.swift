@@ -41,7 +41,7 @@ public class PlayifyPlayer {
     }
     
     ///Get MediaItems via a PersistentID using predicates and queries.
-    private func getMediaItemsWithIDs(songIDs: [String]) -> [MPMediaItem] {
+    func getMediaItemsWithIDs(songIDs: [String]) -> [MPMediaItem] {
         var songs: [MPMediaItem] = []
         for songID in songIDs {
             let songFilter = MPMediaPropertyPredicate(value: songID, forProperty: MPMediaItemPropertyPersistentID, comparisonType: .equalTo)
